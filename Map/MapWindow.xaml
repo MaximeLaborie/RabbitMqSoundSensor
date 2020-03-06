@@ -1,0 +1,117 @@
+﻿<Window
+    x:Class="Map.MapWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Map"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="MainWindow"
+    SizeToContent="WidthAndHeight"
+    mc:Ignorable="d">
+    <Window.DataContext>
+        <local:MapViewModel />
+    </Window.DataContext>
+    <Window.Resources>
+        <local:SensorNameToColumnConverter x:Key="SensorNameToColumnConverter" />
+        <local:SensorNameToRowConverter x:Key="SensorNameToRowConverter" />
+        <local:SensorNameToBrushConverter x:Key="SensorNameToBrushConverter" />
+        <local:SoundLevelToDiameterConverter x:Key="SoundLevelToDiameterConverter" />
+    </Window.Resources>
+
+
+    <Grid>
+
+        <ItemsControl ItemsSource="{Binding Sensors}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Ellipse
+                        Width="{Binding SoundLevel, Converter={StaticResource SoundLevelToDiameterConverter}}"
+                        Height="{Binding SoundLevel, Converter={StaticResource SoundLevelToDiameterConverter}}"
+                        Fill="{Binding SensorName, Converter={StaticResource SensorNameToBrushConverter}}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="{x:Type FrameworkElement}">
+                    <Setter Property="Grid.Row" Value="{Binding SensorName, Converter={StaticResource SensorNameToRowConverter}}" />
+                    <Setter Property="Grid.Column" Value="{Binding SensorName, Converter={StaticResource SensorNameToColumnConverter}}" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="200" />
+                            <RowDefinition Height="200" />
+                            <RowDefinition Height="200" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="200" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="200" />
+                <RowDefinition Height="200" />
+                <RowDefinition Height="200" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="200" />
+                <ColumnDefinition Width="200" />
+            </Grid.ColumnDefinitions>
+            <Border
+                Grid.Row="0"
+                Grid.Column="0"
+                BorderBrush="Black"
+                BorderThickness="8,8,4,4" />
+            <Border
+                Grid.Row="0"
+                Grid.Column="1"
+                BorderBrush="Black"
+                BorderThickness="4,8,4,4" />
+            <Border
+                Grid.Row="0"
+                Grid.Column="2"
+                BorderBrush="Black"
+                BorderThickness="4,8,8,4" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="0"
+                BorderBrush="Black"
+                BorderThickness="8,4,4,4" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="1"
+                BorderBrush="Black"
+                BorderThickness="4" />
+            <Border
+                Grid.Row="1"
+                Grid.Column="2"
+                BorderBrush="Black"
+                BorderThickness="4,4,8,4" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="0"
+                BorderBrush="Black"
+                BorderThickness="8,4,4,8" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="1"
+                BorderBrush="Black"
+                BorderThickness="4,4,4,8" />
+            <Border
+                Grid.Row="2"
+                Grid.Column="2"
+                BorderBrush="Black"
+                BorderThickness="4,4,8,8" />
+        </Grid>
+    </Grid>
+</Window>
