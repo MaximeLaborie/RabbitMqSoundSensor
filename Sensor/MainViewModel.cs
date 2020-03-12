@@ -1,7 +1,9 @@
 ﻿using Model;
 using Newtonsoft.Json;
+using Prism.Commands;
 using Prism.Mvvm;
 using RabbitMQ.Client;
+using System;
 using System.Text;
 
 namespace Sensor
@@ -16,13 +18,16 @@ namespace Sensor
         private const string UserName = "guest";
         private const string Password = "guest";
 
-        private SoundSensor _sensor;
+        private ISoundSensor _sensor;
+        private bool _closing = false;
 
         private IConnection _busConnection;
         private IModel _busChannel;
 
         public MainViewModel()
         {
+            WindowClosingCommand = new DelegateCommand(OnWindowClosing);
+
             Data = new SensorData();
             Data.SensorName = SensorName;
 
@@ -41,7 +46,15 @@ namespace Sensor
             Data.SoundLevel = peak;
 
             var body = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Data));
-            _busChannel.BasicPublish(exchange: ExchangeName, routingKey: "", basicProperties: null, body: body);
+            if(!_closing)
+                _busChannel.BasicPublish(exchange: ExchangeName, routingKey: "", basicProperties: null, body: body);
+        }
+
+        private void OnWindowClosing()
+        {
+            _closing = true;
+            _busChannel.Close();
+            _busConnection.Close();
         }
 
         #region properties
@@ -55,5 +68,11 @@ namespace Sensor
         }
 
         #endregion properties
+
+        #region commands
+
+        public DelegateCommand WindowClosingCommand { get; set; }
+
+        #endregion
     }
 }
