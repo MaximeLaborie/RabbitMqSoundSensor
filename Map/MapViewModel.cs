@@ -1,10 +1,12 @@
 ﻿using Model;
 using Newtonsoft.Json;
+using Prism.Commands;
 using Prism.Mvvm;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -20,8 +22,12 @@ namespace Map
         private IConnection _busConnection;
         private IModel _busChannel;
 
+        public DelegateCommand WindowClosingCommand { get; set; }
+
         public MapViewModel()
         {
+            WindowClosingCommand = new DelegateCommand(OnWindowClosing);
+
             var factory = new ConnectionFactory() { HostName = HostName, UserName = UserName, Password = Password };
             _busConnection = factory.CreateConnection();
             _busChannel = _busConnection.CreateModel();
@@ -36,7 +42,19 @@ namespace Map
 
         private void OnMessage(object sender, BasicDeliverEventArgs e)
         {
-            var data = JsonConvert.DeserializeObject<SensorData>(Encoding.UTF8.GetString(e.Body));
+            try
+            {
+                var data = JsonConvert.DeserializeObject<SensorData>(Encoding.UTF8.GetString(e.Body));
+                DrawData(data);
+            }
+            catch (Exception err)
+            {
+                Debug.Write(err.Message);
+            }
+        }
+
+        private void DrawData(SensorData data)
+        {
             var existingData = Sensors.FirstOrDefault(s => s.SensorName == data.SensorName);
 
             App.Current.Dispatcher.Invoke((Action)delegate
@@ -50,6 +68,12 @@ namespace Map
                     Sensors.Add(data);
                 }
             });
+        }
+
+        private void OnWindowClosing()
+        {
+            _busChannel.Close();
+            _busConnection.Close();
         }
 
         private ObservableCollection<SensorData> _sensors = new ObservableCollection<SensorData>();
